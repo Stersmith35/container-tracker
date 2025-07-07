@@ -64,46 +64,76 @@ function isUpcoming(iso) {
 }
 
 // ─── Grouped Rendering ────────────────────────────────────────────────
+/**
+ * Renders grouped containers into the given category container,
+ * with persistent "Claimed" and "On Hold" statuses.
+ */
 function renderList(filterFn, containerId) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
 
-  // 1) Build groups keyed by "jobRef|etaISO"
+  // 1) Group items by jobRef + etaISO, tracking claimed/onHold flags
   const groups = containers
     .map((c, idx) => ({ c, idx }))
     .filter(({ c }) => filterFn(c.etaISO))
     .reduce((acc, { c, idx }) => {
       const key = `${c.jobRef}|${c.etaISO}`;
       if (!acc[key]) {
-        acc[key] = { jobRef: c.jobRef, etaDisplay: c.etaDisplay, items: [] };
+        acc[key] = {
+          jobRef:      c.jobRef,
+          etaDisplay:  c.etaDisplay,
+          etaISO:      c.etaISO,
+          items:       [],
+          claimed:     !!c.claimed,
+          onHold:      !!c.onHold
+        };
       }
       acc[key].items.push({ data: c, index: idx });
+      // accumulate flags
+      if (c.claimed) acc[key].claimed = true;
+      if (c.onHold)  acc[key].onHold  = true;
       return acc;
     }, {});
 
-  // 2) Render each group box
+  // 2) Render each group
   Object.values(groups).forEach(group => {
+    // a) Container box
     const box = document.createElement('div');
     box.className = 'group-container';
 
-    // Header: Job Ref + ETA
+    // b) Header with Job Ref & ETA
     const hdr = document.createElement('h3');
     hdr.textContent = `Job Ref: ${group.jobRef} — ETA: ${group.etaDisplay}`;
+
+    // c) Persistent CLAIMED label
+    if (group.claimed) {
+      const span = document.createElement('span');
+      span.textContent = ' - CLAIMED';
+      span.className = 'claimed-label';
+      hdr.appendChild(span);
+    }
+    // d) Persistent ON HOLD label
+    if (group.onHold) {
+      const span = document.createElement('span');
+      span.textContent = ' ON HOLD';
+      span.className = 'hold-label';
+      hdr.appendChild(span);
+    }
+
     box.appendChild(hdr);
 
-    // List of container entries
+    // e) List items
     const ul = document.createElement('ul');
     group.items.forEach(({ data: c, index: i }) => {
       const li = document.createElement('li');
-      // Container number text
-      li.appendChild(document.createTextNode(c.containerNumber));
+      li.appendChild(document.createTextNode(c.containerNumber + ' '));
 
-      // Update ETA button
+      // --- Update ETA Button ---
       const btnU = document.createElement('button');
       btnU.textContent = 'Update ETA';
       btnU.addEventListener('click', () => {
         const newEta = prompt('Enter new ETA (DD/MM/YYYY):', c.etaDisplay);
-        if (!newEta || !/^\d{2}\/\d{2}\/\d{4}$/.test(newEta)) {
+        if (!newEta || !/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/.test(newEta)) {
           alert('Cancelled or invalid format.');
           return;
         }
@@ -114,7 +144,22 @@ function renderList(filterFn, containerId) {
       });
       li.appendChild(btnU);
 
-      // Container Cleared button
+      // --- Container Claim Button ---
+      const btnClaim = document.createElement('button');
+      btnClaim.textContent = 'Container Claim';
+      btnClaim.addEventListener('click', () => {
+        // set claimed flag on all in group
+        containers.forEach(c0 => {
+          if (c0.jobRef === group.jobRef && c0.etaISO === group.etaISO) {
+            c0.claimed = true;
+          }
+        });
+        saveContainers();
+        renderAll();
+      });
+      li.appendChild(btnClaim);
+
+      // --- Container Cleared Button ---
       const btnC = document.createElement('button');
       btnC.textContent = 'Container Cleared';
       btnC.addEventListener('click', () => {
@@ -125,6 +170,23 @@ function renderList(filterFn, containerId) {
       });
       li.appendChild(btnC);
 
+      // --- On Hold / Hold Cleared Toggle Button ---
+      const btnHold = document.createElement('button');
+      btnHold.textContent = group.onHold ? 'Hold Cleared' : 'On Hold';
+      btnHold.classList.add(group.onHold ? 'btn-hold-cleared' : 'btn-on-hold');
+      btnHold.addEventListener('click', () => {
+        const newHoldState = !group.onHold;
+        // apply to all in group
+        containers.forEach(c0 => {
+          if (c0.jobRef === group.jobRef && c0.etaISO === group.etaISO) {
+            c0.onHold = newHoldState;
+          }
+        });
+        saveContainers();
+        renderAll();
+      });
+      li.appendChild(btnHold);
+
       ul.appendChild(li);
     });
 
@@ -132,6 +194,7 @@ function renderList(filterFn, containerId) {
     container.appendChild(box);
   });
 }
+
 
 // Hide any empty category sections
 function updateSectionVisibility() {

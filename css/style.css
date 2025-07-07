@@ -196,3 +196,35 @@ ul li button:hover {
 .group-container ul li button {
   margin-left: 0.5rem;
 }
+/* Claimed label styling */
+.group-container h3 .claimed-label {
+  color: green;
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
+/* ─── On Hold Label Styling ───────────────────────────────────────── */
+.group-container h3 .hold-label {
+  background-color: #FF4136; /* red */
+  color: #fff;               /* white text */
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+}
+
+/* ─── On Hold & Hold Cleared Button Styles ───────────────────────── */
+ul li .btn-on-hold {
+  background-color: #FF4136;
+  color: #fff;
+}
+ul li .btn-on-hold:hover {
+  background-color: #C12F2F;
+}
+
+ul li .btn-hold-cleared {
+  background-color: #2ECC40;
+  color: #fff;
+}
+ul li .btn-hold-cleared:hover {
+  background-color: #28A428;
+}
