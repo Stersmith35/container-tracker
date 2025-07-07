@@ -177,3 +177,61 @@ section h2::after {
   .site-logo { height: 3rem; }
   #container-form { grid-template-columns: 1fr; }
 }
+/* --------------------
+   Updated Button Styles
+--------------------*/
+
+/* Base button appearance unchanged */
+.group-container ul li button {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  background: var(--color-white);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+  border: 2px solid transparent;
+}
+
+/* Update ETA button */
+.btn-update {
+  color: var(--color-navy);
+  border-color: var(--color-light-navy);
+}
+.btn-update:hover {
+  background: var(--color-light-navy);
+  color: var(--color-white);
+}
+
+/* Claim button */
+.btn-claim {
+  color: var(--color-gold);
+  border-color: var(--color-gold);
+}
+.btn-claim:hover {
+  background: var(--color-gold);
+  color: var(--color-white);
+}
+
+/* Clear button */
+.btn-clear {
+  color: #28a745; /* darker green */
+  border-color: #28a745;
+}
+.btn-clear:hover {
+  background: #28a745;
+  color: var(--color-white);
+}
+
+/* On Hold / Hold Cleared */
+.btn-on-hold, .btn-hold-cleared {
+  color: var(--color-teal);
+  border-color: var(--color-teal);
+}
+.btn-on-hold:hover, .btn-hold-cleared:hover {
+  background: var(--color-teal);
+  color: var(--color-white);
+}
+
+/* Assign btn-update class to Update ETA in JS */
