@@ -15,9 +15,12 @@
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
-  <header>
+<header>
+  <div class="site-header">
     <h1>Container Tracker</h1>
-  </header>
+    <img src="img/logo.png" alt="Container Tracker Logo" class="site-logo" />
+  </div>
+</header>
 
   <main>
     <!-- Add Container Form -->
@@ -25,20 +28,23 @@
       <h2>Add a New Container</h2>
       <form id="container-form">
         <div>
-          <label for="container-number">Container Number:</label>
-          <input
-            type="text"
-            id="container-number"
-            name="containerNumber"
-            required
-            minlength="11"
-            maxlength="11"
-            pattern=".{11}"
-            title="Container Number must be exactly 11 characters"
-            oninvalid="this.setCustomValidity('Container Number is too short')"
-            oninput="this.setCustomValidity('')"
-          />
-        </div>
+  <label for="container-number">Container Number:</label>
+  <input
+    type="text"
+    id="container-number"
+    name="containerNumber"
+    required
+    maxlength="11"
+    pattern="^[A-Za-z]{4}[0-9]{7}$"
+    title="4 letters followed by 7 digits (e.g. ABCD1234567)"
+    oninvalid="this.setCustomValidity('Container Number must be 4 letters followed by 7 digits')"
+    oninput="
+      this.setCustomValidity('');
+      this.value = this.value.toUpperCase();
+    "
+  />
+</div>
+
         <div>
           <label for="eta">ETA (DD/MM/YYYY):</label>
           <input

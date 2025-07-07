@@ -228,3 +228,37 @@ ul li .btn-hold-cleared {
 ul li .btn-hold-cleared:hover {
   background-color: #28A428;
 }
+/* ─── Header flex layout with logo ───────────────────────────────── */
+.site-header {
+  display: flex;
+  align-items: center;    /* vertically center title & logo */
+  justify-content: center;/* keep them centered in the header */
+  gap: 1rem;              /* space between h1 and img */
+}
+
+.site-logo {
+  height: 8.5rem;         /* match your h1’s 3.5rem font size */
+  width: auto;            /* preserve aspect ratio */
+}
+
+/* Render “CLAIMED” as a green pill with white text */
+.group-container ul li .claimed-label {
+  display: inline-block;
+  background-color: green;
+  color: white;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+
+  
+}
+
+/* Make “On Hold” button match the other buttons */
+.group-container ul li .btn-on-hold {
+  background-color: #39CCCC; /* same as other list buttons */
+  color: #001f3f;            /* matching text color */
+}
+
+.group-container ul li .btn-on-hold:hover {
+  background-color: #2ca7a7; /* same hover state */
+}

@@ -68,11 +68,15 @@ function isUpcoming(iso) {
  * Renders grouped containers into the given category container,
  * with persistent "Claimed" and "On Hold" statuses.
  */
+/**
+ * Renders grouped containers into the given category container,
+ * with per-container "CLAIMED" status and group-level "On Hold".
+ */
 function renderList(filterFn, containerId) {
   const container = document.getElementById(containerId);
   container.innerHTML = '';
 
-  // 1) Group items by jobRef + etaISO, tracking claimed/onHold flags
+  // 1) Group items by jobRef + etaISO, tracking onHold only at group level
   const groups = containers
     .map((c, idx) => ({ c, idx }))
     .filter(({ c }) => filterFn(c.etaISO))
@@ -80,55 +84,51 @@ function renderList(filterFn, containerId) {
       const key = `${c.jobRef}|${c.etaISO}`;
       if (!acc[key]) {
         acc[key] = {
-          jobRef:      c.jobRef,
-          etaDisplay:  c.etaDisplay,
-          etaISO:      c.etaISO,
-          items:       [],
-          claimed:     !!c.claimed,
-          onHold:      !!c.onHold
+          jobRef:     c.jobRef,
+          etaDisplay: c.etaDisplay,
+          etaISO:     c.etaISO,
+          items:      [],
+          onHold:     !!c.onHold
         };
       }
       acc[key].items.push({ data: c, index: idx });
-      // accumulate flags
-      if (c.claimed) acc[key].claimed = true;
-      if (c.onHold)  acc[key].onHold  = true;
+      if (c.onHold) acc[key].onHold = true;
       return acc;
     }, {});
 
   // 2) Render each group
   Object.values(groups).forEach(group => {
-    // a) Container box
+    // a) Group container
     const box = document.createElement('div');
     box.className = 'group-container';
 
-    // b) Header with Job Ref & ETA
+    // b) Header: Job Ref + ETA + On Hold if set
     const hdr = document.createElement('h3');
     hdr.textContent = `Job Ref: ${group.jobRef} — ETA: ${group.etaDisplay}`;
-
-    // c) Persistent CLAIMED label
-    if (group.claimed) {
-      const span = document.createElement('span');
-      span.textContent = ' - CLAIMED';
-      span.className = 'claimed-label';
-      hdr.appendChild(span);
-    }
-    // d) Persistent ON HOLD label
     if (group.onHold) {
-      const span = document.createElement('span');
-      span.textContent = ' ON HOLD';
-      span.className = 'hold-label';
-      hdr.appendChild(span);
+      const spanHold = document.createElement('span');
+      spanHold.textContent = ' ON HOLD';
+      spanHold.className = 'hold-label';
+      hdr.appendChild(spanHold);
     }
-
     box.appendChild(hdr);
 
-    // e) List items
+    // c) List of container entries
     const ul = document.createElement('ul');
     group.items.forEach(({ data: c, index: i }) => {
       const li = document.createElement('li');
-      li.appendChild(document.createTextNode(c.containerNumber + ' '));
 
-      // --- Update ETA Button ---
+      // Container number + CLAIMED label if set
+      const text = document.createTextNode(c.containerNumber + ' ');
+      li.appendChild(text);
+      if (c.claimed) {
+        const spanClaim = document.createElement('span');
+        spanClaim.textContent = 'CLAIMED';
+        spanClaim.className = 'claimed-label';
+        li.appendChild(spanClaim);
+      }
+
+      // ── Update ETA Button ───────────────────────────────
       const btnU = document.createElement('button');
       btnU.textContent = 'Update ETA';
       btnU.addEventListener('click', () => {
@@ -144,24 +144,22 @@ function renderList(filterFn, containerId) {
       });
       li.appendChild(btnU);
 
-      // --- Container Claim Button ---
+      // ── Claim / Unclaim Button ───────────────────────────
       const btnClaim = document.createElement('button');
-      btnClaim.textContent = 'Container Claim';
+      btnClaim.textContent = c.claimed ? 'Unclaim Container' : 'Container Claimed';
+      btnClaim.classList.add(c.claimed ? 'btn-unclaim' : 'btn-claim');
       btnClaim.addEventListener('click', () => {
-        // set claimed flag on all in group
-        containers.forEach(c0 => {
-          if (c0.jobRef === group.jobRef && c0.etaISO === group.etaISO) {
-            c0.claimed = true;
-          }
-        });
+        // toggle this container's claimed flag
+        containers[i].claimed = !containers[i].claimed;
         saveContainers();
         renderAll();
       });
       li.appendChild(btnClaim);
 
-      // --- Container Cleared Button ---
+      // ── Container Cleared Button ─────────────────────────
       const btnC = document.createElement('button');
       btnC.textContent = 'Container Cleared';
+      btnC.classList.add('btn-clear');
       btnC.addEventListener('click', () => {
         if (!confirm('Are you sure? This will remove the container.')) return;
         containers.splice(i, 1);
@@ -170,16 +168,17 @@ function renderList(filterFn, containerId) {
       });
       li.appendChild(btnC);
 
-      // --- On Hold / Hold Cleared Toggle Button ---
+      // ── On Hold / Hold Cleared Button ────────────────────
       const btnHold = document.createElement('button');
-      btnHold.textContent = group.onHold ? 'Hold Cleared' : 'On Hold';
-      btnHold.classList.add(group.onHold ? 'btn-hold-cleared' : 'btn-on-hold');
+      const isHeld = group.onHold;
+      btnHold.textContent = isHeld ? 'Hold Cleared' : 'On Hold';
+      btnHold.classList.add(isHeld ? 'btn-hold-cleared' : 'btn-on-hold');
       btnHold.addEventListener('click', () => {
-        const newHoldState = !group.onHold;
-        // apply to all in group
+        const newHold = !group.onHold;
+        // apply to all containers in this group
         containers.forEach(c0 => {
           if (c0.jobRef === group.jobRef && c0.etaISO === group.etaISO) {
-            c0.onHold = newHoldState;
+            c0.onHold = newHold;
           }
         });
         saveContainers();
@@ -194,6 +193,7 @@ function renderList(filterFn, containerId) {
     container.appendChild(box);
   });
 }
+
 
 
 // Hide any empty category sections
