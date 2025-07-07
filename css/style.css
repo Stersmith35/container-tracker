@@ -1,264 +1,179 @@
-/* Import Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+/* --------------------
+   Refined Professional Theme
+--------------------*/
 
-/* Global Reset & Base Styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+:root {
+  --color-navy: #012A4A;
+  --color-light-navy: #013F7C;
+  --color-teal: #027B85;
+  --color-light-teal: #83C5BE;
+  --color-gold: #F4D160;
+  --color-white: #FFFFFF;
+  --color-gray-light: #F0F0F0;
+  --shadow-color: rgba(1, 42, 74, 0.15);
 }
+
+/* Global Reset & Base */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #f0f8ff; /* AliceBlue */
-  color: #333;
-  line-height: 1.6;
+  background: var(--color-gray-light);
+  color: var(--color-navy);
+  line-height: 1.5;
 }
 main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
+  padding: 2rem;
 }
 
-/* Header */
-header {
-  text-align: center;
-  padding: 2rem 0;
-}
-header h1 {
-  font-size: 3.5rem;
-  color: #001f3f; /* Navy */
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-}
-
-/* Form Styles */
-#container-form {
+/* Header with Gradient & Logo */
+.site-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: flex-end;
-  background-color: #ffffff;
-  padding: 1rem 1.5rem;
-  border: 2px solid #0074D9;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, var(--color-navy), var(--color-light-navy));
+  padding: 1.5rem 2rem;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  width: 100%;
-  max-width: 800px;
-  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
-#container-form > div {
-  display: flex;
-  flex-direction: column;
+.site-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.site-logo {
+  height: 8rem;
+  width: auto;
+}
+
+/* Form Card */
+#container-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  background: var(--color-white);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--shadow-color);
+  margin: 2rem 0;
 }
 #container-form label {
-  margin-bottom: 0.25rem;
   font-weight: 500;
-  color: #001f3f;
+  margin-bottom: 0.25rem;
+  color: var(--color-light-navy);
 }
-#container-form input[type="text"] {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
+#container-form input,
+#container-form button[type="submit"] {
+  padding: 0.75rem;
   border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
 }
 #container-form button[type="submit"] {
-  padding: 0.75rem 1.5rem;
-  background-color: #0074D9;
-  color: #fff;
+  grid-column: span 2;
+  background: var(--color-teal);
+  color: var(--color-white);
+  text-transform: uppercase;
+  font-weight: 600;
   border: none;
-  border-radius: 4px;
   cursor: pointer;
-  font-weight: 500;
+  transition: background 0.3s;
 }
 #container-form button[type="submit"]:hover {
-  background-color: #005fa3;
+  background: var(--color-light-teal);
 }
 
-/* Section Styles */
-section {
-  width: 100%;
-  max-width: 800px;
-  margin-bottom: 2rem;
-}
+/* Section Titles */
 section h2 {
-  font-size: 1.75rem;
-  margin-bottom: 0.5rem;
-  border-bottom: 2px solid #39CCCC;
-  padding-bottom: 0.25rem;
-  color: #001f3f;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-light-navy);
+  margin: 1.5rem 0 0.5rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+section h2::after {
+  content: '';
+  position: absolute;
+  width: 50px;
+  height: 4px;
+  background: var(--color-teal);
+  bottom: 0;
+  left: 0;
+  border-radius: 2px;
 }
 
-/* List Styles */
-ul {
-  list-style: none;
-}
-ul li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #ffffff;
-  padding: 0.75rem 1rem;
-  margin: 0.5rem 0;
-  border-left: 6px solid #0074D9;
-  border-radius: 4px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-
-/* Buttons in list items */
-ul li button {
-  margin-left: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #39CCCC;
-  color: #001f3f;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-}
-ul li button:hover {
-  background-color: #2ca7a7;
-}
-
-/* Specific category overrides */
-/* Late */
-#late-containers h2 {
-  color: #B10DC9;
-}
-#late-list li {
-  background-color: #fff0f0;
-  border-left-color: #FF4136;
-}
-
-/* Due Today */
-#due-today h2 {
-  color: #FF851B;
-}
-#due-today-list li {
-  background-color: #ffffe0;
-  border-left-color: #FFDC00;
-}
-
-/* Due Tomorrow */
-#due-tomorrow h2 {
-  color: #2ECC40;
-}
-#due-tomorrow-list li {
-  background-color: #e8ffeb;
-  border-left-color: #2ECC40;
-}
-
-/* Due This Week */
-#due-this-week h2 {
-  color: #0074D9;
-}
-#due-this-week-list li {
-  background-color: #e6f7ff;
-  border-left-color: #0074D9;
-}
-
-/* Upcoming */
-#upcoming h2 {
-  color: #001f3f;
-}
-#upcoming-list li {
-  background-color: #f0f8ff;
-  border-left-color: #39CCCC;
-}
-/* ─── Job-Ref/ETA Group Box ────────────────────────────────────────── */
+/* Group Container */
 .group-container {
-  background-color: rgba(0, 116, 217, 0.05); /* very light navy tint */
-  border: 2px solid #0074D9;                  /* navy border */
+  background: var(--color-white);
   border-radius: 6px;
+  box-shadow: 0 1px 6px var(--shadow-color);
   margin: 1rem 0;
-  padding: 0.75rem 1rem;
+  overflow: hidden;
 }
 .group-container h3 {
-  margin-bottom: 0.5rem;
-  font-size: 1.25rem;
-  color: #001f3f;                              /* dark navy */
+  background: var(--color-light-navy);
+  color: var(--color-white);
+  padding: 0.75rem 1rem;
+  font-size: 1.2rem;
+  margin: 0;
 }
+
+/* List Items */
 .group-container ul {
   list-style: none;
-  padding-left: 0;
 }
 .group-container ul li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #fff;
-  margin: 0.5rem 0;
-  padding: 0.5rem;
-  border-radius: 4px;
-  border-left: 4px solid #39CCCC;              /* teal accent */
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e5e5;
 }
-/* Buttons inside groups (you already have these styles) */
+.group-container ul li:last-child {
+  border-bottom: none;
+}
+
+/* Buttons: unified style with distinct text colors */
 .group-container ul li button {
   margin-left: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  background: var(--color-white);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
 }
-/* Claimed label styling */
-.group-container h3 .claimed-label {
-  color: green;
-  font-weight: bold;
-  margin-left: 0.5rem;
+.group-container ul li button:hover {
+  background: var(--color-light-gray, #f7f9fa);
 }
-/* ─── On Hold Label Styling ───────────────────────────────────────── */
-.group-container h3 .hold-label {
-  background-color: #FF4136; /* red */
-  color: #fff;               /* white text */
-  font-weight: bold;
+
+/* Specific button text colors */
+.btn-claim { color: var(--color-gold); }
+.btn-clear { color: green; }
+.btn-on-hold, .btn-hold-cleared { color: var(--color-light-navy); }
+
+/* Pill labels */
+.claimed-label, .hold-label {
+  display: inline-block;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
   margin-left: 0.5rem;
+  text-transform: uppercase;
 }
+.claimed-label { background: #2ecc71; color: var(--color-white); }
+.hold-label { background: #e74c3c; color: var(--color-white); }
 
-/* ─── On Hold & Hold Cleared Button Styles ───────────────────────── */
-ul li .btn-on-hold {
-  background-color: #FF4136;
-  color: #fff;
-}
-ul li .btn-on-hold:hover {
-  background-color: #C12F2F;
-}
-
-ul li .btn-hold-cleared {
-  background-color: #2ECC40;
-  color: #fff;
-}
-ul li .btn-hold-cleared:hover {
-  background-color: #28A428;
-}
-/* ─── Header flex layout with logo ───────────────────────────────── */
-.site-header {
-  display: flex;
-  align-items: center;    /* vertically center title & logo */
-  justify-content: center;/* keep them centered in the header */
-  gap: 1rem;              /* space between h1 and img */
-}
-
-.site-logo {
-  height: 8.5rem;         /* match your h1’s 3.5rem font size */
-  width: auto;            /* preserve aspect ratio */
-}
-
-/* Render “CLAIMED” as a green pill with white text */
-.group-container ul li .claimed-label {
-  display: inline-block;
-  background-color: green;
-  color: white;
-  font-weight: bold;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-
-  
-}
-
-/* Make “On Hold” button match the other buttons */
-.group-container ul li .btn-on-hold {
-  background-color: #39CCCC; /* same as other list buttons */
-  color: #001f3f;            /* matching text color */
-}
-
-.group-container ul li .btn-on-hold:hover {
-  background-color: #2ca7a7; /* same hover state */
+/* Responsive */
+@media(max-width: 600px) {
+  .site-header { flex-direction: column; text-align: center; }
+  .site-logo { height: 3rem; }
+  #container-form { grid-template-columns: 1fr; }
 }
