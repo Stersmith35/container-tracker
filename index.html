@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Container Tracker</title>
+  <!-- Your main stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+    <!-- Flatpickr CSS -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+  />
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+<body>
+  <header>
+    <h1>Container Tracker</h1>
+  </header>
+
+  <main>
+    <!-- Add Container Form -->
+    <section id="add-container">
+      <h2>Add a New Container</h2>
+      <form id="container-form">
+        <div>
+          <label for="container-number">Container Number:</label>
+          <input
+            type="text"
+            id="container-number"
+            name="containerNumber"
+            required
+            minlength="11"
+            maxlength="11"
+            pattern=".{11}"
+            title="Container Number must be exactly 11 characters"
+            oninvalid="this.setCustomValidity('Container Number is too short')"
+            oninput="this.setCustomValidity('')"
+          />
+        </div>
+        <div>
+          <label for="eta">ETA (DD/MM/YYYY):</label>
+          <input
+            type="text"
+            id="eta"
+            name="eta"
+            placeholder="DD/MM/YYYY"
+            pattern="^\\d{2}/\\d{2}/\\d{4}$"
+            title="DD/MM/YYYY"
+            required
+          />
+        </div>
+        <div>
+          <label for="job-ref">Job Reference:</label>
+          <input
+            type="text"
+            id="job-ref"
+            name="jobRef"
+            required
+            oninput="this.value = this.value.toUpperCase()"
+          />
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+    </section>
+
+    <!-- Category Sections -->
+    <section id="late-containers">
+      <h2>Late Containers</h2>
+      <div id="late-list"></div>
+    </section>
+
+    <section id="due-today">
+      <h2>Due Today</h2>
+      <div id="due-today-list"></div>
+    </section>
+
+    <section id="due-tomorrow">
+      <h2>Due Tomorrow</h2>
+      <div id="due-tomorrow-list"></div>
+    </section>
+
+    <section id="due-this-week">
+      <h2>Due This Week</h2>
+      <div id="due-this-week-list"></div>
+    </section>
+
+    <section id="upcoming">
+      <h2>Upcoming</h2>
+      <div id="upcoming-list"></div>
+    </section>
+  </main>
+
+  <!-- Your app logic -->
+  <script src="js/script.js"></script>
+</body>
+</html>
