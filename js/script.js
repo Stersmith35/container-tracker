@@ -5,24 +5,49 @@ let containers = [];
 const hasFirestore = typeof db !== 'undefined';
 
 async function loadContainers() {
-+   containers = [];
-+   const uid = firebase.auth().currentUser.uid;
-+   const col = db.collection('users').doc(uid).collection('containers');
-+   const snapshot = await col.get();
-+   snapshot.forEach(doc => containers.push(doc.data()));
-+ }
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    console.warn('loadContainers(): no user signed in');
+    containers = [];
+    return;
+  }
+  const uid = user.uid;
+  console.log('Loading containers for user:', uid);
+  containers = [];
+  const col = db.collection('users').doc(uid).collection('containers');
+  const snapshot = await col.get();
+  snapshot.forEach(doc => containers.push(doc.data()));
+  console.log(`  → Found ${containers.length} container(s)`);
+}
 
-+ async function saveContainers() {
-+   const uid = firebase.auth().currentUser.uid;
-+   const batch = db.batch();
-+   const colRef = db.collection('users').doc(uid).collection('containers');
-+   // wipe & re-add
-+   const existing = await colRef.get();
-+   existing.forEach(doc => batch.delete(doc.ref));
-+   containers.forEach(c => batch.set(colRef.doc(c.containerNumber), c));
-+   await batch.commit();
-+   localStorage.setItem(`containers_${uid}`, JSON.stringify(containers));
-+ }
+
+async function saveContainers() {
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    console.error('saveContainers(): no user signed in');
+    return;
+  }
+  const uid = user.uid;
+  console.log('Saving containers for user:', uid);
+  
+  const batch = db.batch();
+  const colRef = db.collection('users').doc(uid).collection('containers');
+  
+  // Delete existing
+  const existing = await colRef.get();
+  existing.forEach(doc => batch.delete(doc.ref));
+  
+  // Write current array
+  containers.forEach(c => {
+    batch.set(colRef.doc(c.containerNumber), c);
+  });
+  await batch.commit();
+  console.log(`  → Wrote ${containers.length} container(s)`);
+
+  // Mirror to localStorage if you like
+  localStorage.setItem(`containers_${uid}`, JSON.stringify(containers));
+}
+
 
 // ─── Date Parsing & Category Checks ──────────────────────────────────
 function parseInputDate(input) {
