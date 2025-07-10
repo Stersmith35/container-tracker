@@ -124,11 +124,13 @@ const firebaseConfig = {
     const auth = firebase.auth();
   </script>
 
+<!-- Load only if authenticated -->
+<script src="js/authorization.js"></script>
+
   <!-- Flatpickr JS (must load before your script.js) -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-   <!-- Inline Auth Guard script tag -->
-  <script src="js/authorization.js"></script>
+  
 
 </body>
 </html>
