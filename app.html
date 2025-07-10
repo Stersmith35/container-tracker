@@ -125,7 +125,11 @@ const firebaseConfig = {
     const auth = firebase.auth();
   </script>
 
-
+<script>
+  auth.onAuthStateChanged(user => {
+    if (!user) window.location.href = 'login.html';
+  });
+</script>
 
   <!-- Flatpickr JS (must load before your script.js) -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
