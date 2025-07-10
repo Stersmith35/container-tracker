@@ -1,96 +1,187 @@
-// js/script.js — Container Tracker with Proper Auth Guard
+// js/script.js — Container Tracker App Logic (no redeclared globals)
+// Assumes app.html loads and initializes Firebase (firebase.initializeApp)
+// Assumes firebase-auth-compat.js and firebase-firestore-compat.js are already included
 
-// ─── Firebase references (from app.html) ─────────────────────────────
-const auth = firebase.auth();
-const db   = firebase.firestore();
+// Wait for auth state once, then bootstrap the app
+firebase.auth().onAuthStateChanged(async user => {
+if (!user) {
+// Not authenticated → redirect to login
+window\.location.href = 'login.html';
+return;
+}
 
-// ─── Auth guard & app initialization ────────────────────────────────
-auth.onAuthStateChanged(async user => {
-  if (!user) {
-    // not signed in → kick back to login
-    window.location.href = 'login.html';
-    return;
-  }
+// Authenticated: get Firestore reference
+const db = firebase.firestore();
+let containers = \[];
 
-  // ─── 1) Load per-user containers ─────────────────────────────────
-  let containers = [];
-  try {
-    console.log('User signed in:', user.uid);
-    const snap = await db
-      .collection('users').doc(user.uid)
-      .collection('containers')
-      .get();
-    snap.forEach(doc => containers.push(doc.data()));
-    console.log(`  → Loaded ${containers.length} containers`);
-  } catch (err) {
-    console.error('Error loading containers:', err);
-  }
+// ─── Load per-user containers ─────────────────────────────────────────
+try {
+console.log('User signed in:', user.uid);
+const snap = await db.collection('users').doc(user.uid).collection('containers').get();
+snap.forEach(doc => containers.push(doc.data()));
+console.log(`  → Loaded ${containers.length} container(s)`);
+} catch (err) {
+console.error('Error loading containers:', err);
+}
 
-  // ─── 2) Render all categories ────────────────────────────────────
-  window.containers = containers;  // make it global for renderList to see
-  renderAll();
+// ─── Render UI ────────────────────────────────────────────────────────
+window\.containers = containers;  // make global for renderList
+renderAll();
 
-  // ─── 3) Init the date‐picker ────────────────────────────────────
-  if (typeof flatpickr !== 'undefined') {
-    flatpickr('#eta', { dateFormat:'d/m/Y', allowInput:true, clickOpens:true });
-  }
+// ─── Initialize Flatpickr ────────────────────────────────────────────
+if (typeof flatpickr !== 'undefined') {
+flatpickr('#eta', { dateFormat: 'd/m/Y', allowInput: true, clickOpens: true });
+}
 
-  // ─── 4) Wire up “Add Container” form ───────────────────────────
-  const form = document.getElementById('container-form');
-  form.addEventListener('submit', async e => {
-    e.preventDefault();
-    const num = document.getElementById('container-number').value;
-    const eta = document.getElementById('eta').value;
-    const job = document.getElementById('job-ref').value;
+// ─── Form submit handler ─────────────────────────────────────────────
+const form = document.getElementById('container-form');
+if (form) {
+form.addEventListener('submit', async e => {
+e.preventDefault();
+const num = document.getElementById('container-number').value;
+const eta = document.getElementById('eta').value;
+const job = document.getElementById('job-ref').value;
 
-    containers.push({
-      containerNumber: num,
-      etaDisplay:      eta,
-      etaISO:          parseInputDate(eta),
-      jobRef:          job,
-      claimed:         false,
-      onHold:          false
-    });
-
-    // Save back into the same per-user path
-    try {
-      const batch = db.batch();
-      const col = db
-        .collection('users').doc(user.uid)
-        .collection('containers');
-      // wipe & re-add
-      const existing = await col.get();
-      existing.forEach(d => batch.delete(d.ref));
-      containers.forEach(c => batch.set(col.doc(c.containerNumber), c));
-      await batch.commit();
-      console.log(`  → Saved ${containers.length} containers`);
-    } catch (err) {
-      console.error('Error saving containers:', err);
-    }
-
-    renderAll();
-    form.reset();
-    if (typeof flatpickr !== 'undefined') {
-      flatpickr('#eta', { dateFormat:'d/m/Y', allowInput:true, clickOpens:true });
-    }
+```
+  containers.push({
+    containerNumber: num,
+    etaDisplay:      eta,
+    etaISO:          parseInputDate(eta),
+    jobRef:          job,
+    claimed:         false,
+    onHold:          false
   });
 
-  // ─── 5) Wire up logout ───────────────────────────────────────────
-  const logoutBtn = document.getElementById('logout');
-  if (logoutBtn) logoutBtn.addEventListener('click', () => auth.signOut());
+  // Save updated list
+  try {
+    const batch = db.batch();
+    const col = db.collection('users').doc(user.uid).collection('containers');
+    const existing = await col.get();
+    existing.forEach(d => batch.delete(d.ref));
+    containers.forEach(c => batch.set(col.doc(c.containerNumber), c));
+    await batch.commit();
+    console.log(`  → Saved ${containers.length} container(s)`);
+  } catch (err) {
+    console.error('Error saving containers:', err);
+  }
+
+  renderAll();
+  form.reset();
+  if (typeof flatpickr !== 'undefined') {
+    flatpickr('#eta', { dateFormat: 'd/m/Y', allowInput: true, clickOpens: true });
+  }
+});
+```
+
+}
+
+// ─── Logout handler ──────────────────────────────────────────────────
+const logoutBtn = document.getElementById('logout');
+if (logoutBtn) logoutBtn.addEventListener('click', () => firebase.auth().signOut());
 });
 
-// ─── Date helpers & category checks — UNCHANGED ─────────────────────
-function parseInputDate(input) { /* … */ }
-function parseISODate(iso)    { /* … */ }
-function startOfDay(dt)       { /* … */ }
-function isLate(iso)          { /* … */ }
-function isDueToday(iso)      { /* … */ }
-function isDueTomorrow(iso)   { /* … */ }
-function isDueThisWeek(iso)   { /* … */ }
-function isUpcoming(iso)      { /* … */ }
+// ─── Persistence, Date & Rendering Helpers ─────────────────────────────────
 
-// ─── Rendering functions — UNCHANGED ───────────────────────────────
-function renderList(filterFn, containerId) { /* … */ }
-function updateSectionVisibility() { /* … */ }
-function renderAll() { /* … */ }
+async function saveContainers() {
+// fallback: not used, save in handler above
+}
+
+function parseInputDate(input) {
+const \[d, m, y] = input.split('/');
+return `${y}-${m}-${d}`;
+}
+function parseISODate(iso) {
+const \[y, m, d] = iso.split('-');
+return new Date(y, m - 1, d);
+}
+function startOfDay(dt) {
+const d = new Date(dt);
+d.setHours(0, 0, 0, 0);
+return d;
+}
+function isLate(iso) {
+return startOfDay(parseISODate(iso)) < startOfDay(new Date());
+}
+function isDueToday(iso) {
+return startOfDay(parseISODate(iso)).getTime() === startOfDay(new Date()).getTime();
+}
+function isDueTomorrow(iso) {
+const t = startOfDay(new Date());
+t.setDate(t.getDate() + 1);
+return startOfDay(parseISODate(iso)).getTime() === t.getTime();
+}
+function isDueThisWeek(iso) {
+const today = startOfDay(new Date());
+const end   = new Date(today);
+end.setDate(end.getDate() + (6 - today.getDay()));
+end.setHours(23, 59, 59, 999);
+const etaTime = startOfDay(parseISODate(iso)).getTime();
+return etaTime > today.getTime() + 86400000 && etaTime <= end.getTime();
+}
+function isUpcoming(iso) {
+const today = startOfDay(new Date());
+const end   = new Date(today);
+end.setDate(end.getDate() + (6 - today.getDay()));
+end.setHours(23, 59, 59, 999);
+return startOfDay(parseISODate(iso)).getTime() > end.getTime();
+}
+
+function renderList(filterFn, containerId) {
+const container = document.getElementById(containerId);
+container.innerHTML = '';
+const groups = (window\.containers || \[]).map((c, idx) => ({ c, idx }))
+.filter(({ c }) => filterFn(c.etaISO))
+.reduce((acc, { c, idx }) => {
+const key = `${c.jobRef}|${c.etaISO}`;
+if (!acc\[key]) acc\[key] = { jobRef: c.jobRef, etaDisplay: c.etaDisplay, etaISO: c.etaISO, items: \[], onHold: !!c.onHold };
+acc\[key].items.push({ data: c, index: idx });
+if (c.onHold) acc\[key].onHold = true;
+return acc;
+}, {});
+Object.values(groups).forEach(group => {
+const box = document.createElement('div');
+box.className = 'group-container';
+const hdr = document.createElement('h3');
+hdr.textContent = `Job Ref: ${group.jobRef} — ETA: ${group.etaDisplay}`;
+if (group.onHold) {
+const spanHold = document.createElement('span');
+spanHold.className = 'hold-label';
+spanHold.textContent = ' ON HOLD';
+hdr.appendChild(spanHold);
+}
+box.appendChild(hdr);
+const ul = document.createElement('ul');
+group.items.forEach(({ data: c, index: i }) => {
+const li = document.createElement('li');
+if (c.claimed) {
+const spanClaim = document.createElement('span');
+spanClaim.className = 'claimed-label';
+spanClaim.textContent = 'CLAIMED';
+li.appendChild(spanClaim);
+}
+li.appendChild(document.createTextNode(`${c.containerNumber}`));
+// Buttons (Update ETA, Claim, Clear, On Hold) go here…
+ul.appendChild(li);
+});
+box.appendChild(ul);
+container.appendChild(box);
+});
+}
+
+function updateSectionVisibility() {
+\[\['late-containers','late-list'],\['due-today','due-today-list'],\['due-tomorrow','due-tomorrow-list'],\['due-this-week','due-this-week-list'],\['upcoming','upcoming-list']]
+.forEach((\[sec,lst]) => {
+const section = document.getElementById(sec);
+const hasItems = document.getElementById(lst).children.length > 0;
+if (section) section.style.display = hasItems ? 'block' : 'none';
+});
+}
+
+function renderAll() {
+renderList(isLate,        'late-list');
+renderList(isDueToday,    'due-today-list');
+renderList(isDueTomorrow, 'due-tomorrow-list');
+renderList(isDueThisWeek, 'due-this-week-list');
+renderList(isUpcoming,    'upcoming-list');
+updateSectionVisibility();
+}
