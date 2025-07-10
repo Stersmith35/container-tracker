@@ -5,32 +5,24 @@ let containers = [];
 const hasFirestore = typeof db !== 'undefined';
 
 async function loadContainers() {
-  containers = [];
-  if (hasFirestore) {
-    console.log('Loading from Firestore');
-    const snapshot = await db.collection('containers').get();
-    snapshot.forEach(doc => containers.push(doc.data()));
-  } else {
-    console.log('Loading from localStorage');
-    const raw = localStorage.getItem('containers');
-    if (raw) containers = JSON.parse(raw);
-  }
-}
++   containers = [];
++   const uid = firebase.auth().currentUser.uid;
++   const col = db.collection('users').doc(uid).collection('containers');
++   const snapshot = await col.get();
++   snapshot.forEach(doc => containers.push(doc.data()));
++ }
 
-async function saveContainers() {
-  console.log('Saving containers, hasFirestore=', hasFirestore);
-  if (hasFirestore) {
-    const batch = db.batch();
-    const colRef = db.collection('containers');
-    const existing = await colRef.get();
-    existing.forEach(doc => batch.delete(doc.ref));
-    containers.forEach(c => batch.set(colRef.doc(c.containerNumber), c));
-    await batch.commit();
-    console.log('Firestore save complete');
-  }
-  localStorage.setItem('containers', JSON.stringify(containers));
-  console.log('localStorage save complete');
-}
++ async function saveContainers() {
++   const uid = firebase.auth().currentUser.uid;
++   const batch = db.batch();
++   const colRef = db.collection('users').doc(uid).collection('containers');
++   // wipe & re-add
++   const existing = await colRef.get();
++   existing.forEach(doc => batch.delete(doc.ref));
++   containers.forEach(c => batch.set(colRef.doc(c.containerNumber), c));
++   await batch.commit();
++   localStorage.setItem(`containers_${uid}`, JSON.stringify(containers));
++ }
 
 // ─── Date Parsing & Category Checks ──────────────────────────────────
 function parseInputDate(input) {
