@@ -1,6 +1,4 @@
-// js/script.js — Container Tracker App Logic (no redeclared globals)
-// Assumes app.html loads and initializes Firebase (firebase.initializeApp)
-// Assumes firebase-auth-compat.js and firebase-firestore-compat.js are already included
+
 
 // Wait for auth state once, then bootstrap the app
 firebase.auth().onAuthStateChanged(async user => {
@@ -11,7 +9,7 @@ return;
 }
 
 // Authenticated: get Firestore reference
-const db = firebase.firestore();
+
 let containers = \[];
 
 // ─── Load per-user containers ─────────────────────────────────────────

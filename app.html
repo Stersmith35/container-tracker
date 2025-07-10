@@ -121,8 +121,10 @@ const firebaseConfig = {
     // Initialize
     firebase.initializeApp(firebaseConfig);
     // Expose db for script.js
-    const db = firebase.firestore();
-    const auth = firebase.auth();
+   const auth = firebase.auth();
+const db   = firebase.firestore();
+auth.onAuthStateChanged(…);
+
   </script>
 
 <script>
