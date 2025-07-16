@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Container Workflow</title>
+  <title>Inbound Workflow</title>
   <!-- Your main stylesheet -->
   <link rel="stylesheet" href="css/style.css" />
     <!-- Flatpickr CSS -->
@@ -26,21 +26,17 @@
   <main>
     <!-- Add Container Form -->
     <section id="add-container">
-      <h2>Add a New Container</h2>
+      <h2>Add a New Container / Vehicle</h2>
       <form id="container-form">
         <div>
-  <label for="container-number">Container Number:</label>
+  <label for="container-number">Container/Truck Number:</label>
   <input
     type="text"
     id="container-number"
     name="containerNumber"
     required
-    maxlength="11"
-    pattern="^[A-Za-z]{4}[0-9]{7}$"
-    title="4 letters followed by 7 digits (e.g. ABCD1234567)"
-    oninvalid="this.setCustomValidity('Container Number must be 4 letters followed by 7 digits')"
     oninput="
-      this.setCustomValidity('');
+    
       this.value = this.value.toUpperCase();
     "
   />
