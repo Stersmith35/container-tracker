@@ -154,7 +154,7 @@ section h2::after {
 }
 
 /* Specific button text colors */
-.btn-claim { color: var(--color-gold); }
+.btn-claim { color:#0a6c74; }
 .btn-clear { color: green; }
 .btn-on-hold, .btn-hold-cleared { color: var(--color-light-navy); }
 
